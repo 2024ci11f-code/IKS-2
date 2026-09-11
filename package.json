@@ -1,0 +1,21 @@
+{
+  "name": "jal-sanskriti-archive",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": { "dev": "vite", "dev:api": "node --watch server/server.js", "start:api": "node server/server.js", "build": "vite build", "preview": "vite preview" },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "animejs": "latest",
+    "axios": "latest",
+    "framer-motion": "latest",
+    "lucide-react": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "react-router-dom": "latest",
+    "tailwindcss": "latest",
+    "daisyui": "latest",
+    "vite": "latest"
+  },
+  "devDependencies": {}
+}

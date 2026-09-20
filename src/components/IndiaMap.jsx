@@ -1,5 +1,88 @@
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
+import { motion } from "framer-motion";
+import indiaTopo from "../data/india.json";
+
 export default function IndiaMap({ systems = [], interactive = false }) {
   const navigate = useNavigate();
-  return <div className={'map ' + (interactive ? 'interactive' : '')}><div className="map-label north">Himalayas</div><svg viewBox="0 0 120 115" role="img" aria-label="Illustrated map of India"><rect x="0" y="0" width="120" height="115" fill="rgba(255,255,255,.02)"/><path d="M32 10 L45 8 L53 15 L60 13 L67 19 L76 19 L83 12 L92 13 L98 19 L110 20 L115 25 L111 31 L114 39 L110 46 L113 55 L108 61 L110 69 L103 74 L105 82 L99 87 L96 95 L90 100 L83 107 L76 102 L68 106 L61 102 L55 97 L49 90 L43 82 L34 76 L28 68 L23 59 L24 50 L20 43 L23 36 L29 29 L31 20 Z" fill="#f4d46a" stroke="#3e173d" strokeWidth="1.3"/><path d="M76 64 L86 62 L91 68 L87 74 L79 71Z" fill="#f4d46a" stroke="#3e173d" strokeWidth="1.3"/><path d="M52 90 L58 97 L54 102 L48 99Z" fill="#f4d46a" stroke="#3e173d" strokeWidth="1.3"/></svg>{systems.filter((system) => system.mapPosition).map((system) => <button key={system.id} className="map-dot" style={{left:system.mapPosition[0]+'%',top:system.mapPosition[1]+'%'}} onClick={() => interactive && navigate('/archive/' + system.id)}><i/><span>{system.name}<b>{system.type}</b></span></button>)}</div>;
+  const [tooltip, setTooltip] = useState("");
+
+  return (
+    <motion.div 
+      className={`map-container ${interactive ? "interactive" : ""}`}
+      initial={{ opacity: 0, scale: 0.95 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+    >
+      <ComposableMap
+        projection="geoMercator"
+        projectionConfig={{
+          scale: 900,
+          center: [80, 22] // Centered on India
+        }}
+        width={800}
+        height={600}
+        style={{ width: "100%", height: "100%" }}
+      >
+        <Geographies geography={indiaTopo}>
+          {({ geographies }) =>
+            geographies.map((geo) => (
+              <Geography
+                key={geo.rsmKey}
+                geography={geo}
+                fill="rgba(191, 234, 255, 0.15)"
+                stroke="#bfeaff"
+                strokeWidth={0.5}
+                style={{
+                  default: { outline: "none" },
+                  hover: { fill: "rgba(191, 234, 255, 0.3)", outline: "none" },
+                  pressed: { outline: "none" },
+                }}
+              />
+            ))
+          }
+        </Geographies>
+
+        {systems.filter((s) => s.latitude && s.longitude).map((system, idx) => (
+          <Marker 
+            key={`${system.id}-${idx}`} 
+            coordinates={[system.longitude, system.latitude]}
+            onClick={() => interactive && navigate("/archive/" + system.id)}
+            onMouseEnter={() => setTooltip(system.name)}
+            onMouseLeave={() => setTooltip("")}
+            style={{
+              cursor: interactive ? "pointer" : "default"
+            }}
+          >
+            <motion.circle 
+              r={5} 
+              fill="#f4d46a" 
+              stroke="#3e173d" 
+              strokeWidth={1.5}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.5 + idx * 0.05, type: "spring", stiffness: 200 }}
+              whileHover={{ scale: 1.5, fill: "#ffffff" }}
+            />
+            {tooltip === system.name && (
+              <text
+                textAnchor="middle"
+                y={-12}
+                style={{
+                  fontFamily: "DM Mono",
+                  fontSize: "12px",
+                  fill: "#ffffff",
+                  textShadow: "0px 2px 4px rgba(0,0,0,0.8)"
+                }}
+              >
+                {system.name}
+              </text>
+            )}
+          </Marker>
+        ))}
+      </ComposableMap>
+    </motion.div>
+  );
 }

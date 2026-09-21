@@ -13,7 +13,7 @@ export default function SystemCard({ system, index = 0 }) {
     >
       <Link to={`/archive/${system.id}`}>
         <div className="image-wrap">
-          <img src={system.image} alt={system.name} />
+          <img src={system.images && system.images.length ? system.images[0] : (system.image || '/placeholder.jpg')} alt={system.name} />
           <span>{system.type}</span>
         </div>
         <div className="card-info">
